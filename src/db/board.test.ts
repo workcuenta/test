@@ -6,9 +6,11 @@ import {
   listBoards,
   updateBoard,
   deleteBoard,
+  getBoardMetrics,
 } from "./board";
 import { createColumn } from "./column";
 import { createCard } from "./card";
+import { createUser } from "./user";
 
 beforeEach(() => {
   initDb(":memory:");
@@ -110,5 +112,60 @@ describe("deleteBoard", () => {
       .all(col.id);
     expect(cols).toHaveLength(0);
     expect(cards).toHaveLength(0);
+  });
+});
+
+describe("getBoardMetrics", () => {
+  test("returns metrics for own board with columns and cards", () => {
+    const user = createUser("metricsuser", "hash");
+    const board = createBoard(user.id, "My Board");
+    const col1 = createColumn(board.id, "To Do");
+    const col2 = createColumn(board.id, "Done");
+    createCard(col1.id, "Card A");
+    createCard(col1.id, "Card B");
+    createCard(col2.id, "Card C");
+
+    const metrics = getBoardMetrics(board.id, user.id);
+    expect(metrics).not.toBeNull();
+    expect(metrics!.boardId).toBe(board.id);
+    expect(metrics!.columnCount).toBe(2);
+    expect(metrics!.totalCards).toBe(3);
+    expect(metrics!.cardsByColumn).toHaveLength(2);
+    const toDoEntry = metrics!.cardsByColumn.find((c) => c.columnName === "To Do");
+    expect(toDoEntry?.cardCount).toBe(2);
+    const doneEntry = metrics!.cardsByColumn.find((c) => c.columnName === "Done");
+    expect(doneEntry?.cardCount).toBe(1);
+  });
+
+  test("returns metrics for board with no columns", () => {
+    const user = createUser("metricsuser2", "hash");
+    const board = createBoard(user.id, "Empty Board");
+
+    const metrics = getBoardMetrics(board.id, user.id);
+    expect(metrics).not.toBeNull();
+    expect(metrics!.columnCount).toBe(0);
+    expect(metrics!.totalCards).toBe(0);
+    expect(metrics!.cardsByColumn).toEqual([]);
+  });
+
+  test("returns metrics for board with columns but no cards", () => {
+    const user = createUser("metricsuser3", "hash");
+    const board = createBoard(user.id, "Columns Only");
+    createColumn(board.id, "Col A");
+    createColumn(board.id, "Col B");
+
+    const metrics = getBoardMetrics(board.id, user.id);
+    expect(metrics).not.toBeNull();
+    expect(metrics!.columnCount).toBe(2);
+    expect(metrics!.totalCards).toBe(0);
+    metrics!.cardsByColumn.forEach((entry) => expect(entry.cardCount).toBe(0));
+  });
+
+  test("returns null for board not owned by user", () => {
+    const owner = createUser("metricsowner", "hash");
+    const other = createUser("metricsother", "hash");
+    const board = createBoard(owner.id, "Owner Board");
+
+    expect(getBoardMetrics(board.id, other.id)).toBeNull();
   });
 });

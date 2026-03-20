@@ -4,6 +4,7 @@ import {
   listBoards,
   updateBoard,
   deleteBoard,
+  getBoardMetrics,
 } from "../db/board";
 import { requireAuth } from "../auth";
 
@@ -30,6 +31,18 @@ export const boardRoutes = {
       } catch (e) {
         if (e instanceof Response) return e;
         return json({ error: (e as any).message }, 400);
+      }
+    },
+  },
+  "/api/boards/:id/metrics": {
+    GET: async (req: Req) => {
+      try {
+        const { userId } = await requireAuth(req);
+        const metrics = getBoardMetrics(Number(req.params.id), userId);
+        return metrics ? json(metrics) : json({ error: "Not found" }, 404);
+      } catch (e) {
+        if (e instanceof Response) return e;
+        return json({ error: "Internal error" }, 500);
       }
     },
   },

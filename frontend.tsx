@@ -5,6 +5,7 @@ import { Board as BoardComponent } from "./src/components/Board";
 import { LoginPage } from "./src/components/LoginPage";
 import { FilterBar } from "./src/components/FilterBar";
 import { BoardSwitcher } from "./src/components/BoardSwitcher";
+import { Dashboard } from "./src/components/Dashboard";
 
 interface AppState {
   boards: Board[];
@@ -50,6 +51,7 @@ function App() {
   const [username, setUsername] = useState<string | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [view, setView] = useState<"dashboard" | "board">("dashboard");
   const [state, setState] = useState<AppState>({
     boards: [],
     activeBoardId: null,
@@ -74,6 +76,7 @@ function App() {
   const handleLogout = useCallback(async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     setUsername(null);
+    setView("dashboard");
     setState({ boards: [], activeBoardId: null, columns: [], cards: {}, labels: [] });
   }, []);
 
@@ -115,6 +118,7 @@ function App() {
   const handleSelect = useCallback((boardId: number) => {
     setState((prev) => ({ ...prev, activeBoardId: boardId }));
     refresh(boardId);
+    setView("board");
   }, [refresh]);
 
   const handleCreateBoard = useCallback(async (name: string) => {
@@ -128,6 +132,7 @@ function App() {
     const newBoard: Board = await res.json();
     setIsCreating(false);
     await refresh(newBoard.id);
+    setView("board");
   }, [refresh]);
 
   const handleLabelToggle = useCallback((labelId: number) => {
@@ -149,9 +154,35 @@ function App() {
 
   const activeBoard = state.boards.find((b) => b.id === state.activeBoardId) ?? null;
 
+  if (view === "dashboard") {
+    return (
+      <div className="app">
+        <header className="app-header">
+          <h1>Kanban</h1>
+          <div className="app-header-user">
+            <span>{username}</span>
+            <button className="logout-btn" onClick={handleLogout} type="button">
+              Log out
+            </button>
+          </div>
+        </header>
+        <main>
+          <Dashboard
+            boards={state.boards}
+            onSelectBoard={handleSelect}
+            onCreateBoard={handleCreateBoard}
+          />
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="app">
       <header className="app-header">
+        <button className="home-btn" onClick={() => setView("dashboard")} type="button" title="Back to dashboard">
+          ⌂
+        </button>
         <h1>{activeBoard?.name ?? "Kanban"}</h1>
         <BoardSwitcher
           boards={state.boards}
