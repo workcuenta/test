@@ -1,0 +1,481 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  background: #f0f2f5;
+  color: #1a1a2e;
+  min-height: 100vh;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.app-header {
+  background: #1a1a2e;
+  color: #fff;
+  padding: 10px 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+/* Board Tabs (Switcher) */
+.board-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  flex: 1;
+  padding: 2px 0;
+}
+
+.board-tab {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.7);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.1s, color 0.1s;
+}
+
+.board-tab:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+
+.board-tab.active {
+  background: rgba(255,255,255,0.2);
+  border-color: rgba(255,255,255,0.6);
+  color: #fff;
+  font-weight: 600;
+}
+
+.board-tab-add {
+  background: transparent;
+  border: 1px dashed rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.5);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.1s, color 0.1s;
+}
+
+.board-tab-add:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+
+/* Inline board creation form */
+.board-create-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.board-create-input {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 4px;
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 0.82rem;
+  outline: none;
+  width: 140px;
+}
+
+.board-create-input::placeholder {
+  color: rgba(255,255,255,0.4);
+}
+
+.board-create-input:focus {
+  border-color: rgba(255,255,255,0.7);
+}
+
+.board-create-btn {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.4);
+  color: #fff;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.board-create-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.board-create-cancel {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+
+.board-create-cancel:hover {
+  color: #fff;
+}
+
+/* Empty state board creation prompt */
+.board-create-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 20px;
+  text-align: center;
+  color: #555;
+}
+
+.board-create-prompt h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.board-create-prompt-form {
+  display: flex;
+  gap: 8px;
+}
+
+.board-create-prompt .board-create-input {
+  background: #fff;
+  border: 1px solid #ccd0d8;
+  color: #1a1a2e;
+  width: 220px;
+  padding: 8px 12px;
+  font-size: 0.95rem;
+}
+
+.board-create-prompt .board-create-input::placeholder {
+  color: #aaa;
+}
+
+.board-create-prompt .board-create-btn {
+  background: #1a1a2e;
+  border-color: #1a1a2e;
+  padding: 8px 18px;
+  font-size: 0.95rem;
+}
+
+.app-header h1 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.app-header-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+}
+
+.logout-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.4);
+  color: #fff;
+  border-radius: 4px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.logout-btn:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+main {
+  flex: 1;
+  overflow: hidden;
+  padding: 20px;
+}
+
+.loading {
+  padding: 40px;
+  text-align: center;
+  color: #666;
+}
+
+/* Filter Bar */
+.filter-bar {
+  background: #fff;
+  border-bottom: 1px solid #e0e2e8;
+  padding: 8px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.filter-search {
+  border: 1px solid #ccd0d8;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 0.85rem;
+  outline: none;
+  width: 200px;
+}
+
+.filter-search:focus {
+  border-color: #4a6fa5;
+}
+
+.filter-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.filter-label-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 2px solid;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+
+.filter-label-chip.active {
+  color: #fff;
+}
+
+/* Board */
+.board {
+  display: flex;
+  gap: 16px;
+  height: 100%;
+  overflow-x: auto;
+  align-items: flex-start;
+  padding-bottom: 8px;
+}
+
+.board-empty {
+  color: #888;
+  padding: 40px;
+}
+
+/* Column */
+.column {
+  background: #ebecf0;
+  border-radius: 8px;
+  width: 272px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+}
+
+.column-header {
+  padding: 10px 14px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: grab;
+  border-radius: 8px 8px 0 0;
+  user-select: none;
+  background: #dde0e7;
+}
+
+.column-header:active {
+  cursor: grabbing;
+}
+
+.column-body {
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 48px;
+  border-radius: 0 0 8px 8px;
+  transition: background 0.15s;
+}
+
+.column-body.drag-over {
+  background: #c7d3e8;
+  outline: 2px dashed #4a6fa5;
+  outline-offset: -2px;
+}
+
+/* Card */
+.card {
+  background: #fff;
+  border-radius: 6px;
+  padding: 10px 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  cursor: grab;
+  user-select: none;
+}
+
+.card:active {
+  cursor: grabbing;
+}
+
+.card-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.card-desc {
+  font-size: 0.78rem;
+  color: #666;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.card-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.label-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+}
+
+/* Add Card */
+.add-card-btn {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  color: #666;
+  cursor: pointer;
+  border-radius: 0 0 8px 8px;
+}
+
+.add-card-btn:hover {
+  background: rgba(0,0,0,0.05);
+  color: #333;
+}
+
+.add-card-form {
+  padding: 6px 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.add-card-input,
+.add-card-textarea {
+  width: 100%;
+  border: 1px solid #ccd0d8;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  outline: none;
+  resize: none;
+}
+
+.add-card-input:focus,
+.add-card-textarea:focus {
+  border-color: #4a6fa5;
+}
+
+.add-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.add-card-confirm {
+  background: #1a1a2e;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.add-card-confirm:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.add-card-cancel {
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 5px 6px;
+}
+
+.add-card-cancel:hover {
+  color: #333;
+}
+
+/* Add Column */
+.add-column-btn {
+  background: rgba(255,255,255,0.5);
+  border: 2px dashed #bbb;
+  border-radius: 8px;
+  width: 272px;
+  flex-shrink: 0;
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 0.85rem;
+  color: #777;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background 0.15s, color 0.15s;
+}
+
+.add-column-btn:hover {
+  background: rgba(255,255,255,0.8);
+  color: #333;
+}
+
+.add-column-form {
+  background: #ebecf0;
+  border-radius: 8px;
+  width: 272px;
+  flex-shrink: 0;
+  padding: 10px 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-self: flex-start;
+}
+
+.board--empty {
+  align-items: flex-start;
+  padding-top: 4px;
+}
