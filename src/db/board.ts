@@ -48,3 +48,37 @@ export function updateBoard(id: number, name: string, userId: number): Board {
 export function deleteBoard(id: number, userId: number): void {
   getDb().run("DELETE FROM boards WHERE id = ? AND user_id = ?", [id, userId]);
 }
+
+export interface BoardMetrics {
+  boardId: number;
+  columnCount: number;
+  totalCards: number;
+  cardsByColumn: Array<{ columnId: number; columnName: string; cardCount: number }>;
+}
+
+export function getBoardMetrics(boardId: number, userId: number): BoardMetrics | null {
+  const board = getBoardById(boardId, userId);
+  if (!board) return null;
+
+  const rows = getDb()
+    .query<{ column_id: number; column_name: string; card_count: number }, [number]>(
+      `SELECT c.id AS column_id, c.name AS column_name, COUNT(ca.id) AS card_count
+       FROM columns c
+       LEFT JOIN cards ca ON ca.column_id = c.id
+       WHERE c.board_id = ?
+       GROUP BY c.id, c.name
+       ORDER BY c.position ASC`
+    )
+    .all(boardId);
+
+  return {
+    boardId,
+    columnCount: rows.length,
+    totalCards: rows.reduce((sum, r) => sum + r.card_count, 0),
+    cardsByColumn: rows.map((r) => ({
+      columnId: r.column_id,
+      columnName: r.column_name,
+      cardCount: r.card_count,
+    })),
+  };
+}
