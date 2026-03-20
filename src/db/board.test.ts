@@ -168,4 +168,76 @@ describe("getBoardMetrics", () => {
 
     expect(getBoardMetrics(board.id, other.id)).toBeNull();
   });
+
+  test("returns null for non-existent board id", () => {
+    const user = createUser("metricsuser4", "hash");
+    expect(getBoardMetrics(99999, user.id)).toBeNull();
+  });
+
+  test("cardsByColumn entries include correct columnId values", () => {
+    const user = createUser("metricsuser5", "hash");
+    const board = createBoard(user.id, "ID Check Board");
+    const col = createColumn(board.id, "Only Col");
+    createCard(col.id, "Card 1");
+
+    const metrics = getBoardMetrics(board.id, user.id);
+    expect(metrics).not.toBeNull();
+    expect(metrics!.cardsByColumn[0].columnId).toBe(col.id);
+    expect(metrics!.cardsByColumn[0].columnName).toBe("Only Col");
+    expect(metrics!.cardsByColumn[0].cardCount).toBe(1);
+  });
+
+  test("cardsByColumn is ordered by column position", () => {
+    const user = createUser("metricsuser6", "hash");
+    const board = createBoard(user.id, "Order Board");
+    const col1 = createColumn(board.id, "First");
+    const col2 = createColumn(board.id, "Second");
+    const col3 = createColumn(board.id, "Third");
+    createCard(col3.id, "Card in Third");
+
+    const metrics = getBoardMetrics(board.id, user.id);
+    expect(metrics).not.toBeNull();
+    expect(metrics!.cardsByColumn.map((c) => c.columnName)).toEqual([
+      "First",
+      "Second",
+      "Third",
+    ]);
+  });
+
+  test("totalCards sums cards across all columns correctly", () => {
+    const user = createUser("metricsuser7", "hash");
+    const board = createBoard(user.id, "Sum Board");
+    const col1 = createColumn(board.id, "Col 1");
+    const col2 = createColumn(board.id, "Col 2");
+    const col3 = createColumn(board.id, "Col 3");
+    createCard(col1.id, "A");
+    createCard(col2.id, "B");
+    createCard(col2.id, "C");
+    createCard(col3.id, "D");
+    createCard(col3.id, "E");
+    createCard(col3.id, "F");
+
+    const metrics = getBoardMetrics(board.id, user.id);
+    expect(metrics).not.toBeNull();
+    expect(metrics!.totalCards).toBe(6);
+    expect(metrics!.columnCount).toBe(3);
+    const col2Entry = metrics!.cardsByColumn.find((c) => c.columnName === "Col 2");
+    expect(col2Entry?.cardCount).toBe(2);
+    const col3Entry = metrics!.cardsByColumn.find((c) => c.columnName === "Col 3");
+    expect(col3Entry?.cardCount).toBe(3);
+  });
+
+  test("boardId in returned metrics matches the requested board", () => {
+    const user = createUser("metricsuser8", "hash");
+    const board1 = createBoard(user.id, "Board Alpha");
+    const board2 = createBoard(user.id, "Board Beta");
+    createColumn(board2.id, "Col");
+
+    const metrics1 = getBoardMetrics(board1.id, user.id);
+    const metrics2 = getBoardMetrics(board2.id, user.id);
+
+    expect(metrics1!.boardId).toBe(board1.id);
+    expect(metrics2!.boardId).toBe(board2.id);
+    expect(metrics1!.boardId).not.toBe(metrics2!.boardId);
+  });
 });
